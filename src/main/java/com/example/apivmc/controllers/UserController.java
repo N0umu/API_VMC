@@ -33,7 +33,7 @@ public class UserController {
 
     @PostMapping("")
     public User createUser(@RequestBody UserDTO user){
-        User created = new User(user.email(), user.pass());
+        User created = new User(user.email(), user.password());
         created = this.users.save(created);
         return created;
     }
@@ -67,7 +67,7 @@ public class UserController {
         if (user.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        user.get().setPass(newUserInfo.pass());
+        user.get().setPassword(newUserInfo.password());
 
         return new ResponseEntity<>(this.users.save(user.get()), HttpStatus.OK);
     }

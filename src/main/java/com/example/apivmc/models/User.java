@@ -11,12 +11,12 @@ public class User {
     private String nom;
     private String prenom;
     private String email;
-    private String pass;
+    private String password;
 
     public User(){}
-    public User(String email, String pass){
+    public User(String email, String password){
         this.email = email;
-        this.pass = pass;
+        this.password = password;
     }
 
     public Long getId() {
@@ -51,11 +51,11 @@ public class User {
         this.email = email;
     }
 
-    public String getPass() {
-        return pass;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPass(String pass) {
-        this.pass = pass;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

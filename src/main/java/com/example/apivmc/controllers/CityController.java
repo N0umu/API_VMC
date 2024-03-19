@@ -81,6 +81,24 @@ public class CityController {
 
     }
 
+    @PostMapping("/{idArchi}/batiment/{idBat}")
+    public ResponseEntity<City> addBatimentByIdToCity(@PathVariable long idCity, @PathVariable long idBat) {
+        Optional<City> cityOptional = this.cities.findById(idCity);
+        if (cityOptional.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Optional<Batiment> batimentOptional = this.batiments.findById(idBat);
+        if (batimentOptional.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        City city = cityOptional.get();
+        Batiment batiment = batimentOptional.get();
+        city.add(batiment);
+        city = this.cities.save(city);
+        return new ResponseEntity<>(city, HttpStatus.OK);
+
+    }
+
     @DeleteMapping("/{idCity}/batiment/{idBat}")
     public ResponseEntity<City> removeBatimentByIDFromCity(@PathVariable long idCity, @PathVariable long idBat) {
         Optional<City> cityOptional = this.cities.delete(idCity);
