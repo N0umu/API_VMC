@@ -22,6 +22,16 @@ public class UserController {
     public List<User> getAllUsers(){
         return this.users.findAll();
     }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email){
+        Optional<User> user = this.users.findExistingUserWhereEmailLike(email);
+        if (user.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(user.get(), HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable long id) {
         Optional<User> user = this.users.findById(id);
@@ -32,10 +42,13 @@ public class UserController {
     }
 
     @PostMapping("")
-    public User createUser(@RequestBody UserDTO user){
+    public ResponseEntity<User> createUser(@RequestBody UserDTO user){
         User created = new User(user.email(), user.password());
-        created = this.users.save(created);
-        return created;
+        if(this.findExistingUserWhereEmailLike(user.email()).isEmpty()){
+            created = this.users.save(created);
+            return new ResponseEntity<>(created, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     @DeleteMapping("/{id}")
@@ -57,6 +70,7 @@ public class UserController {
         user.get().setEmail(newUserInfo.email());
         user.get().setPrenom(newUserInfo.prenom());
         user.get().setNom(newUserInfo.nom());
+        user.get().setExpert(newUserInfo.expert());
 
         return new ResponseEntity<>(this.users.save(user.get()), HttpStatus.OK);
     }
@@ -70,5 +84,10 @@ public class UserController {
         user.get().setPassword(newUserInfo.password());
 
         return new ResponseEntity<>(this.users.save(user.get()), HttpStatus.OK);
+    }
+
+    @GetMapping("/emailVerif/{email}")
+    public Optional<User> findExistingUserWhereEmailLike(@PathVariable String email) {
+        return this.users.findExistingUserWhereEmailLike(email);
     }
 }

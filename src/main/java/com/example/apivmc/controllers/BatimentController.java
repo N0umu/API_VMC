@@ -1,25 +1,35 @@
 package com.example.apivmc.controllers;
 
+import com.example.apivmc.dao.ArchitecteDAO;
 import com.example.apivmc.dao.BatimentDAO;
 import com.example.apivmc.dao.CityDAO;
+import com.example.apivmc.models.Architecte;
 import com.example.apivmc.models.Batiment;
+import com.example.apivmc.models.City;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/batiments")
 public class BatimentController {
+    public static String UPLOAD_DIRECTORY = System.getProperty("user.dir") + "/uploads";
     private BatimentDAO batiments;
     private CityDAO cities;
+    private ArchitecteDAO architectes;
 
-    public BatimentController(BatimentDAO batiments, CityDAO cities){
+    public BatimentController(BatimentDAO batiments, CityDAO cities, ArchitecteDAO architectes){
         this.batiments = batiments;
         this.cities = cities;
-
+        this.architectes = architectes;
     }
 
     @GetMapping("")
@@ -28,19 +38,42 @@ public class BatimentController {
     }
     @GetMapping("/{id}")
     public ResponseEntity<Batiment> getBatimentById(@PathVariable long id) {
-        Optional<Batiment> user = this.batiments.findById(id);
-        if (user.isEmpty()) {
+        Optional<Batiment> batiment = this.batiments.findById(id);
+        if (batiment.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(user.get(), HttpStatus.OK);
+        return new ResponseEntity<>(batiment.get(), HttpStatus.OK);
     }
 
 
     @PostMapping("")
-    public Batiment createBatiment(@RequestBody BatimentDTO batiment){
-        Batiment created = new Batiment(batiment.nom(), batiment.descrip(), batiment.adresse(), batiment.annee(), batiment.lat(), batiment.lon());
+    public ResponseEntity<Batiment> createBatiment(@RequestBody BatimentDTO batiment){
+        Optional<Architecte> architecte = this.architectes.findExistingArchitecteWhereNomLike(batiment.archi());
+        if (architecte.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Optional<City> city = this.cities.findExistingCityWhereNomLike(batiment.ville());
+        if (city.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Batiment created = new Batiment(batiment.nom(), batiment.description(), batiment.adresse(), batiment.annee(), batiment.lat(), batiment.lon());
         created = this.batiments.save(created);
-        return created;
+
+        architecte.get().add(created);
+        this.architectes.save(architecte.get());
+        city.get().add(created);
+        this.cities.save(city.get());
+        return new ResponseEntity<>(created, HttpStatus.OK);
+    }
+
+    @PostMapping("/image")
+    public String uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
+        StringBuilder fileNames = new StringBuilder();
+        Path fileNameAndPath = Paths.get(UPLOAD_DIRECTORY, file.getOriginalFilename());
+        fileNames.append(file.getOriginalFilename());
+        Files.write(fileNameAndPath, file.getBytes());
+        return "Success";
     }
 
     //Alternative
@@ -70,7 +103,7 @@ public class BatimentController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         batiment.get().setNom(newBatimentInfo.nom());
-        batiment.get().setDescrip(newBatimentInfo.descrip());
+        batiment.get().setDescription(newBatimentInfo.description());
         batiment.get().setAdresse(newBatimentInfo.adresse());
         batiment.get().setAnnee(newBatimentInfo.annee());
         batiment.get().setLat(newBatimentInfo.lat());

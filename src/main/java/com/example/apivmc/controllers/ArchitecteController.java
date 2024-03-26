@@ -73,7 +73,7 @@ public class ArchitecteController {
         if (architecteOptional.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        Batiment toAdd = new Batiment(batimentInfo.nom(),batimentInfo.descrip(),batimentInfo.adresse(),batimentInfo.annee(),batimentInfo.lat(),batimentInfo.lon());
+        Batiment toAdd = new Batiment(batimentInfo.nom(),batimentInfo.description(),batimentInfo.adresse(),batimentInfo.annee(),batimentInfo.lat(),batimentInfo.lon());
         Architecte architecte = architecteOptional.get();
         architecte.add(toAdd);
         architecte = this.architectes.save(architecte);

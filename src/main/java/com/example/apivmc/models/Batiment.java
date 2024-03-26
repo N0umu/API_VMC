@@ -1,90 +1,40 @@
 package com.example.apivmc.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-@Entity
+import java.util.List;
+
+@Entity @Getter @Setter @NoArgsConstructor
 public class Batiment {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nom;
-    private String descrip;
+    private String description;
     private String adresse;
     private String annee;
     private String lat;
     private String lon;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Photo> photos;
 //    @ManyToOne(cascade = CascadeType.ALL)
 //    @JoinColumn(name = "city_id")
 //    private City ville;
 
-    public Batiment(){}
-
     public Batiment(String nom, String desc, String adresse, String annee, String lat, String lon){
         this.nom = nom;
-        this.descrip = desc;
+        this.description = desc;
         this.adresse = adresse;
         this.annee = annee;
         this.lat = lat;
         this.lon = lon;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public String getDescrip() {
-        return descrip;
-    }
-
-    public void setDescrip(String descrip) {
-        this.descrip = descrip;
-    }
-
-    public String getAdresse() {
-        return adresse;
-    }
-
-    public void setAdresse(String adresse) {
-        this.adresse = adresse;
-    }
-
-    public String getAnnee() {
-        return annee;
-    }
-
-    public void setAnnee(String annee) {
-        this.annee = annee;
-    }
-
-    public String getLat() {
-        return lat;
-    }
-
-    public void setLat(String lat) {
-        this.lat = lat;
-    }
-
-    public String getLon() {
-        return lon;
-    }
-
-    public void setLon(String lon) {
-        this.lon = lon;
-    }
 //    public City getVille() {
 //        return ville;
 //    }

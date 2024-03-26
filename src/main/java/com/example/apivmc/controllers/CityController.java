@@ -73,7 +73,7 @@ public class CityController {
         if (cityOptional.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        Batiment toAdd = new Batiment(batimentInfo.nom(),batimentInfo.descrip(),batimentInfo.adresse(),batimentInfo.annee(),batimentInfo.lat(),batimentInfo.lon());
+        Batiment toAdd = new Batiment(batimentInfo.nom(),batimentInfo.description(),batimentInfo.adresse(),batimentInfo.annee(),batimentInfo.lat(),batimentInfo.lon());
         City city = cityOptional.get();
         city.add(toAdd);
         city = this.cities.save(city);

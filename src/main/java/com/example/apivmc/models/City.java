@@ -1,45 +1,23 @@
 package com.example.apivmc.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
-@Entity
+@Entity @Getter @Setter @NoArgsConstructor
 public class City {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nom;
 
-    @OneToMany(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Batiment> batiments;
-    public City(){}
     public City(String nom){
         this.nom = nom;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public List<Batiment> getBatiments() {
-        return batiments;
-    }
-
-    public void setBatiments(List<Batiment> batiments) {
-        this.batiments = batiments;
     }
     public void add(Batiment batiment){
         this.batiments.add(batiment);
