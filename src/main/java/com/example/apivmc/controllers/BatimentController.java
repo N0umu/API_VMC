@@ -55,6 +55,7 @@ public class BatimentController {
         Optional<Architecte> architecte = this.architectes.findExistingArchitecteWhereNomLike(batiment.archi());
         if (architecte.isEmpty()) {
             Architecte newArchi = new Architecte(batiment.archi());
+            newArchi.add(created);
             this.architectes.save(newArchi);
         }else{
             architecte.get().add(created);
@@ -63,6 +64,7 @@ public class BatimentController {
         Optional<City> city = this.cities.findExistingCityWhereNomLike(batiment.ville());
         if (city.isEmpty()) {
             City newCity = new City(batiment.ville());
+            newCity.add(created);
             this.cities.save(newCity);
         }else{
             city.get().add(created);
