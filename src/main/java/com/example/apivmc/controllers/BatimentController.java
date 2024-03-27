@@ -48,22 +48,26 @@ public class BatimentController {
 
     @PostMapping("")
     public ResponseEntity<Batiment> createBatiment(@RequestBody BatimentDTO batiment){
-        Optional<Architecte> architecte = this.architectes.findExistingArchitecteWhereNomLike(batiment.archi());
-        if (architecte.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        Optional<City> city = this.cities.findExistingCityWhereNomLike(batiment.ville());
-        if (city.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
 
         Batiment created = new Batiment(batiment.nom(), batiment.description(), batiment.adresse(), batiment.annee(), batiment.lat(), batiment.lon());
         created = this.batiments.save(created);
 
-        architecte.get().add(created);
-        this.architectes.save(architecte.get());
-        city.get().add(created);
-        this.cities.save(city.get());
+        Optional<Architecte> architecte = this.architectes.findExistingArchitecteWhereNomLike(batiment.archi());
+        if (architecte.isEmpty()) {
+            Architecte newArchi = new Architecte(batiment.archi());
+            this.architectes.save(newArchi);
+        }else{
+            architecte.get().add(created);
+            this.architectes.save(architecte.get());
+        }
+        Optional<City> city = this.cities.findExistingCityWhereNomLike(batiment.ville());
+        if (city.isEmpty()) {
+            City newCity = new City(batiment.ville());
+            this.cities.save(newCity);
+        }else{
+            city.get().add(created);
+            this.cities.save(city.get());
+        }
         return new ResponseEntity<>(created, HttpStatus.OK);
     }
 
