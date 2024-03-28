@@ -47,6 +47,11 @@ public class CityController {
         return new ResponseEntity<>(batimentsList, HttpStatus.OK);
     }
 
+    @GetMapping("/name/{cityName}")
+    public Optional<City> getCityByName(@PathVariable String cityName){
+        return this.cities.findExistingCityWhereNomLike(cityName);
+    }
+
     @PostMapping("")
     public City createCity(@RequestBody CityDTO city){
         City created = new City(city.nom());

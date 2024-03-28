@@ -15,6 +15,7 @@ public class Batiment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nom;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private String adresse;
     private String annee;
