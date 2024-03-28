@@ -3,9 +3,11 @@ package com.example.apivmc.controllers;
 import com.example.apivmc.dao.ArchitecteDAO;
 import com.example.apivmc.dao.BatimentDAO;
 import com.example.apivmc.dao.CityDAO;
+import com.example.apivmc.dao.PhotoDAO;
 import com.example.apivmc.models.Architecte;
 import com.example.apivmc.models.Batiment;
 import com.example.apivmc.models.City;
+import com.example.apivmc.models.Photo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +27,13 @@ public class BatimentController {
     private BatimentDAO batiments;
     private CityDAO cities;
     private ArchitecteDAO architectes;
+    private PhotoDAO    photo;
 
-    public BatimentController(BatimentDAO batiments, CityDAO cities, ArchitecteDAO architectes){
+    public BatimentController(BatimentDAO batiments, CityDAO cities, ArchitecteDAO architectes, PhotoDAO photo){
         this.batiments = batiments;
         this.cities = cities;
         this.architectes = architectes;
+        this.photo = photo;
     }
 
     @GetMapping("")
@@ -59,6 +63,7 @@ public class BatimentController {
             this.architectes.save(newArchi);
         }else{
             architecte.get().add(created);
+
             this.architectes.save(architecte.get());
         }
         Optional<City> city = this.cities.findExistingCityWhereNomLike(batiment.ville());
@@ -68,17 +73,33 @@ public class BatimentController {
             this.cities.save(newCity);
         }else{
             city.get().add(created);
+
             this.cities.save(city.get());
         }
         return new ResponseEntity<>(created, HttpStatus.OK);
     }
 
-    @PostMapping("/image")
-    public String uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
+    @PostMapping("/image/{batimentId}")
+    public String uploadImage(@PathVariable Long batimentId,@RequestParam("image") MultipartFile file) throws IOException {
         StringBuilder fileNames = new StringBuilder();
         Path fileNameAndPath = Paths.get(UPLOAD_DIRECTORY, file.getOriginalFilename());
         fileNames.append(file.getOriginalFilename());
         Files.write(fileNameAndPath, file.getBytes());
+
+
+        // Convertir l'image en byte[]
+        byte[] imageData = file.getBytes();
+// Récupérer le bâtiment correspondant à batimentId
+        Batiment batiment = batiments.findById(batimentId).get();
+
+         //Créer une nouvelle instance de l'entité Image
+        Photo image = new Photo();
+        image.setNom(file.getOriginalFilename());
+        image.setPicByte(imageData);
+        image.setBatiment(batiment);
+        //Photo image = new Photo(file.getOriginalFilename(), imageData, batiment);
+        // Enregistrer l'image dans la base de données
+        photo.save(image);
         return "Success";
     }
 
