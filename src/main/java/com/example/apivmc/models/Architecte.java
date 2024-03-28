@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity @Getter @Setter @NoArgsConstructor
@@ -14,7 +15,7 @@ public class Architecte {
     private String nom;
 
     @OneToMany(fetch = FetchType.LAZY)
-    private List<Batiment> batiments;
+    private List<Batiment> batiments = new ArrayList<>();
 
     public Architecte(String nom){
         this.nom = nom;

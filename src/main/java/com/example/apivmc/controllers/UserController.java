@@ -1,6 +1,7 @@
 package com.example.apivmc.controllers;
 
 import com.example.apivmc.dao.UserDAO;
+import com.example.apivmc.models.Batiment;
 import com.example.apivmc.models.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,17 @@ public class UserController {
         }
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
+
+//    @PostMapping("/myList/{id}")
+//    public ResponseEntity<User> addBatimentToUserList(@PathVariable long id, @RequestBody BatimentDTO batimentInfo){
+//        Batiment batiment = new Batiment(batimentInfo.ville(), batimentInfo.nom(), )
+//        User created = new User(user.email(), user.password());
+//        if(this.findExistingUserWhereEmailLike(user.email()).isEmpty()){
+//            created = this.users.save(created);
+//            return new ResponseEntity<>(created, HttpStatus.OK);
+//        }
+//        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<User> deleteUserByID(@PathVariable int id) {

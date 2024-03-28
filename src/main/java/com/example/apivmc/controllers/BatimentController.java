@@ -63,7 +63,6 @@ public class BatimentController {
             this.architectes.save(newArchi);
         }else{
             architecte.get().add(created);
-
             this.architectes.save(architecte.get());
         }
         Optional<City> city = this.cities.findExistingCityWhereNomLike(batiment.ville());
@@ -73,7 +72,6 @@ public class BatimentController {
             this.cities.save(newCity);
         }else{
             city.get().add(created);
-
             this.cities.save(city.get());
         }
         return new ResponseEntity<>(created, HttpStatus.OK);
