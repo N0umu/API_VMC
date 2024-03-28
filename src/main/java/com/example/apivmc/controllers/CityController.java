@@ -38,6 +38,14 @@ public class CityController {
         }
         return new ResponseEntity<>(city.get(), HttpStatus.OK);
     }
+    @GetMapping("/batiment/{cityName}")
+    public ResponseEntity<List<Batiment>> getBatimentsByCityName(@PathVariable String cityName) {
+        List<Batiment> batimentsList = cities.findBatimentsWhereCityNomLike(cityName);
+        if (batimentsList.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(batimentsList, HttpStatus.OK);
+    }
 
     @PostMapping("")
     public City createCity(@RequestBody CityDTO city){
