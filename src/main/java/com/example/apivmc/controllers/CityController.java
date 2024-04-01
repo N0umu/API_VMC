@@ -94,7 +94,7 @@ public class CityController {
 
     }
 
-    @PostMapping("/{idArchi}/batiment/{idBat}")
+    @PostMapping("/{idCity}/batiment/{idBat}")
     public ResponseEntity<City> addBatimentByIdToCity(@PathVariable long idCity, @PathVariable long idBat) {
         Optional<City> cityOptional = this.cities.findById(idCity);
         if (cityOptional.isEmpty()) {
