@@ -8,17 +8,22 @@ import com.example.apivmc.models.Architecte;
 import com.example.apivmc.models.Batiment;
 import com.example.apivmc.models.City;
 import com.example.apivmc.models.Photo;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/batiments")
@@ -76,9 +81,34 @@ public class BatimentController {
         }
         return new ResponseEntity<>(created, HttpStatus.OK);
     }
+   @PostMapping("/image/{batimentId}")
+public String posteImageID(@PathVariable Long batimentId, @RequestParam("image") MultipartFile file) throws IOException {
+    // Convertir l'image en byte[]
+    byte[] imageData = file.getBytes();
 
-    @PostMapping("/image/{batimentId}")
-    public String uploadImage(@PathVariable Long batimentId,@RequestParam("image") MultipartFile file) throws IOException {
+    // Récupérer le bâtiment correspondant à batimentId
+    Optional<Batiment> batimentOptional = batiments.findById(batimentId);
+    if (batimentOptional.isEmpty()) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Batiment not found");
+    }
+    Batiment batiment = batimentOptional.get();
+
+    // Créer une nouvelle instance de l'entité Photo
+    Photo image = new Photo();
+    image.setNom(file.getOriginalFilename());
+    image.setPicByte(imageData);
+    image.setBatiment(batiment);
+
+    // Enregistrer l'image dans la base de données
+    photo.save(image);
+
+    return "Success";
+}
+
+
+
+    @PostMapping("/image")
+    public String uploadImage(@RequestParam("image") MultipartFile file) throws IOException {
         StringBuilder fileNames = new StringBuilder();
         Path fileNameAndPath = Paths.get(UPLOAD_DIRECTORY, file.getOriginalFilename());
         fileNames.append(file.getOriginalFilename());
@@ -88,18 +118,51 @@ public class BatimentController {
         // Convertir l'image en byte[]
         byte[] imageData = file.getBytes();
 // Récupérer le bâtiment correspondant à batimentId
-        Batiment batiment = batiments.findById(batimentId).get();
+      //  Batiment batiment = batiments.findById(batimentId).get();
 
          //Créer une nouvelle instance de l'entité Image
         Photo image = new Photo();
         image.setNom(file.getOriginalFilename());
         image.setPicByte(imageData);
-        image.setBatiment(batiment);
+       // image.setBatiment(batiment);
         //Photo image = new Photo(file.getOriginalFilename(), imageData, batiment);
         // Enregistrer l'image dans la base de données
         photo.save(image);
         return "Success";
     }
+
+  @GetMapping("/{id}/image")
+public ResponseEntity<byte[]> getImagesByBatimentId(@PathVariable Long id) {
+    try {
+        // Récupérer le bâtiment correspondant à l'ID
+        Optional<Batiment> batiment = this.batiments.findById(id);
+        if (batiment.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        // Récupérer toutes les images associées à ce bâtiment
+        List<Photo> photos = this.photo.findByBatiment(batiment.get());
+
+        // Vérifier qu'il y a au moins une image
+        if (photos.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        // Récupérer toutes les images et renvoyer les données binaires
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        for (Photo photo : photos) {
+            outputStream.write(photo.getPicByte());
+        }
+        byte[] allImagesData = outputStream.toByteArray();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        return new ResponseEntity<>(allImagesData, headers, HttpStatus.OK);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
 
     //Alternative
 //    @PostMapping("/cities/{cityId}/batiments")
